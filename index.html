@@ -1,0 +1,35 @@
+<html>
+	<head>
+		<title>Logistic Map</title>
+		<meta charset="utf-8"/>
+		<script type="text/javascript" src="scripts.js"></script>
+		<link rel="stylesheet" type="text/css" href="styles.css">
+	</head>
+	<body>
+		<div id='header'>Logistic Map</div>
+		<div id='container'>
+		<div id='eq'>x<sub>n+1</sub> = rx<sub>n</sub>(1-x<sub>n</sub>)</div> 
+		<div id='form'>
+		<form>
+			Iterations: <input id='iterations' type='text'>
+			Initial value (x<sub>0</sub>): <input id='x_0' type='text'>
+			Parameter (r): <input id='r' type='text'>
+			<input id='submit' type='button' value='Submit'>
+		</form>
+		</div>
+		<div id='errors'></div>
+		<div id='logmap_container'>
+			<div id='cobweb_label'>Cobweb Diagram</div>
+			<div id='y_label'>x<sub>n+1</sub></div>
+			<div id='y_axis'></div>
+			<div id='plot'>
+				<canvas id='logmap' height='400' width='400'>
+				Your browser does not support canvas	
+				</canvas>
+			</div>
+			<div id='x_axis'></div>
+			<div id='x_label'>x<sub>n</sub></div>
+		</div>
+		</div>
+	</body>
+</html>
