@@ -5,9 +5,16 @@ var plot_height;
 var x_axis;
 var y_axis;
 var iterations;
+var iteration;
+var animation = 0;
 var x_0;
+var x_n;
 var r;
+var animate;
+var keep = false; //like MATLAB
+var paused = false;
 var axisLabelled = false;
+var continuingFromPaused = false;
 
 document.addEventListener("DOMContentLoaded", function(){
 	logmap = document.getElementById('logmap');
@@ -25,33 +32,109 @@ document.addEventListener("DOMContentLoaded", function(){
 	document.getElementById('submit').addEventListener('click', function(){
 		if (validateInputs() === 1){
 			document.getElementById('errors').innerHTML = '';
+			if (animation){ //animation will contain nonzero id if animation has already run, will need to clear 
+				clearInterval(animation);
+			}
+			keep = false;
+			continuingFromPaused = false;
 			evaluate();
 		}		
+	}
+	);
+	//show animation options if animate is checked
+	document.getElementById('animate').addEventListener('click', function(){
+		if (document.getElementById('animate').checked){
+			document.getElementById('animation_options').style.display = 'block';
+		}
+		else{
+			document.getElementById('animation_options').style.display = 'none';
+		}
 	});
+	//pause button function
+	document.getElementById('pause').addEventListener('click', function(){
+		paused = !paused;
+		if (paused){
+			clearInterval(animation);
+			document.getElementById('pause').innerHTML = 'play';
+		}
+		else{
+			document.getElementById('animate').checked = false;
+			let prev_iterations = iterations;
+			iterations = iteration;			
+			evaluate();
+			keep = true;
+			continuingFromPaused = true;
+			x_0 = x_n;
+			document.getElementById('animate').checked = true;
+			iterations = prev_iterations+1;
+			evaluate();
+
+		}
+		
+		
+	});
+	//foward button function
+	document.getElementById('forward').addEventListener('click', function(){
+	//	debugger;
+		clearInterval(animation);
+		document.getElementById('animate').checked = false;
+		iterations = iteration + 1;
+		evaluate();
+	});
+	//back button function
+	document.getElementById('back').addEventListener('click', function(){
+	//	debugger;
+		clearInterval(animation);
+		document.getElementById('animate').checked = false;
+		iterations = iteration - 1;
+		evaluate();
+	});
+	
 });
 
 var evaluate = function(){
-	//clear previous curve
-	draw_plot();
+	if (!keep){
+		//clear previous curve
+		draw_plot();
 	  draw_curve();
+	}
 	  ctx.strokeStyle = '#f20915';
-	  let x_n = x_0;
-	  //for first iteration, draw line from x-axis 
-	  	ctx.beginPath();
-	  	ctx.moveTo(x_n*plot_width, 0);
-	  	ctx.lineTo(x_n*plot_width, fun(x_n)*plot_height);
-	  	ctx.lineTo(fun(x_n)*plot_width, fun(x_n)*plot_height);
-	  	ctx.stroke();
-	  	x_n = fun(x_n);
-	  for (let i = 1; i < iterations; i++){
-	  	ctx.beginPath();
-	  	ctx.moveTo(x_n*plot_width, x_n*plot_height);
-	  	ctx.lineTo(x_n*plot_width, fun(x_n)*plot_height);
-	  	ctx.lineTo(fun(x_n)*plot_width, fun(x_n)*plot_height);
-	  	ctx.stroke();
-	  	x_n = fun(x_n);
+	  x_n = x_0;
+	  //if no animation, graph everything without delays
+	  if (document.getElementById('animate').checked === false){
+	  	for (let i = 0; i < iterations; i++){
+	  		ctx.beginPath();
+	  		let y = (i == 0 && !continuingFromPaused) ? 0 : x_n*plot_height; //for first iteration, draw line from x-axis 
+		  	ctx.moveTo(x_n*plot_width, y);
+		  	ctx.lineTo(x_n*plot_width, fun(x_n)*plot_height);
+		  	ctx.lineTo(fun(x_n)*plot_width, fun(x_n)*plot_height);
+		  	ctx.stroke();
+		  	x_n = fun(x_n);
+		  	iteration = iterations;
+	  	}
 	  }
+	  //if animation is checked, delay between iterations based on "speed" setting
+	  else{
+	  	iteration = 0;
+		animation = setInterval(function() { 
+		    ctx.beginPath();
+		    let y = (iteration == 0 && !continuingFromPaused) ? 0 : x_n*plot_height; //for first iteration, draw line from x-axis 
+		  	ctx.moveTo(x_n*plot_width, y);
+		  	ctx.lineTo(x_n*plot_width, fun(x_n)*plot_height);
+		  	ctx.lineTo(fun(x_n)*plot_width, fun(x_n)*plot_height);
+		  	ctx.stroke();
+		    if (iteration >= iterations) {
+		    	clearInterval(animation);
+		    }
+		    iteration++;
+		  	x_n = fun(x_n);
+	    }, 1000/(document.getElementById('speed').value));
+	  
+	  }
+	  
 };
+
+
 
 var validateInputs = function(){
 	//debugger;
@@ -157,7 +240,6 @@ var draw_curve = function(){
 		ctx.moveTo(x_n*plot_width,fun(x_n)*plot_height);
 		ctx.lineTo((x_n+dx)*plot_width, fun(x_n+dx)*plot_height);
 		ctx.stroke();
-		console.log(x_n, fun(x_n), x_n+dx, fun(x_n+dx));
 	}
 	return;
 }

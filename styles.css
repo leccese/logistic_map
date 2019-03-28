@@ -26,6 +26,9 @@ html, body {
 	color: #2d2e30;
 	text-align: center;
 }
+#animate_options{
+	display: none;
+}
 #errors{
 	height: 25px;
 	color: red;
