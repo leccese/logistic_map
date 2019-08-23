@@ -5,16 +5,21 @@ var plot_height;
 var x_axis;
 var y_axis;
 var iterations;
-var iteration;
+var curr_iteration;
 var animation = 0;
 var x_0;
 var x_n;
+var x_start;
 var r;
 var animate;
+var lastClick;
+var animation_running = true;
 var keep = false; //like MATLAB
 var paused = false;
 var axisLabelled = false;
 var continuingFromPaused = false;
+
+
 
 document.addEventListener("DOMContentLoaded", function(){
 	logmap = document.getElementById('logmap');
@@ -30,43 +35,49 @@ document.addEventListener("DOMContentLoaded", function(){
 	  draw_plot();
 	} 
 	document.getElementById('submit').addEventListener('click', function(){
-		if (validateInputs() === 1){
-			document.getElementById('errors').innerHTML = '';
-			if (animation){ //animation will contain nonzero id if animation has already run, will need to clear 
+		lastClick = 'submit';
+		if (animation){ //animation will contain nonzero id if animation is currently running or has already run, will need to clear 
 				clearInterval(animation);
 			}
+		if (validateInputs() === 1){
+			document.getElementById('errors').style.display = 'none';
+			document.getElementById('errors').innerHTML = '';			
+			curr_iteration = 0; 
 			keep = false;
 			continuingFromPaused = false;
+			paused = false;
+			document.getElementById('pause').innerHTML = 'pause'
 			evaluate();
-		}		
+		}
+				
 	}
 	);
 	//show animation options if animate is checked
 	document.getElementById('animate').addEventListener('click', function(){
 		if (document.getElementById('animate').checked){
-			document.getElementById('animation_options').style.display = 'block';
+			document.getElementById('animation_options').style.display = 'block'
 		}
 		else{
-			document.getElementById('animation_options').style.display = 'none';
+			document.getElementById('animation_options').style.display = 'none'
 		}
 	});
 	//pause button function
 	document.getElementById('pause').addEventListener('click', function(){
+		lastClick = 'pause';
 		paused = !paused;
+		debugger;
 		if (paused){
 			clearInterval(animation);
-			document.getElementById('pause').innerHTML = 'play';
+			document.getElementById('pause').innerHTML = 'play_arrow';
+			animation_running = false;
+			curr_iteration--;
 		}
 		else{
-			document.getElementById('animate').checked = false;
-			let prev_iterations = iterations;
-			iterations = iteration;			
-			evaluate();
+			document.getElementById('pause').innerHTML = 'pause'
+			animation_running = true;
 			keep = true;
 			continuingFromPaused = true;
-			x_0 = x_n;
-			document.getElementById('animate').checked = true;
-			iterations = prev_iterations+1;
+			x_start = x_n;
 			evaluate();
 
 		}
@@ -76,17 +87,32 @@ document.addEventListener("DOMContentLoaded", function(){
 	//foward button function
 	document.getElementById('forward').addEventListener('click', function(){
 	//	debugger;
+		lastClick = 'forward';
 		clearInterval(animation);
-		document.getElementById('animate').checked = false;
-		iterations = iteration + 1;
+		document.getElementById('pause').innerHTML = 'play_arrow';
+		animation_running = false;
+		continuingFromPaused = false;
+		iterations = curr_iteration + 1
+		x_start = x_0;
 		evaluate();
+
 	});
 	//back button function
 	document.getElementById('back').addEventListener('click', function(){
-	//	debugger;
+		//debugger;
+		let intialDecrement = 1
+		if (lastClick == 'submit'){
+			intialDecrement = 2
+		}
+		lastClick = 'back';
 		clearInterval(animation);
-		document.getElementById('animate').checked = false;
-		iterations = iteration - 1;
+		document.getElementById('pause').innerHTML = 'play_arrow';
+		animation_running = false;
+		continuingFromPaused = false;
+		//first time backwards is clicked curr_iteration is 1 more than when backwards is clicked consecutively
+		iterations = curr_iteration - intialDecrement;
+		keep = false;
+		x_start = x_0;
 		evaluate();
 	});
 	
@@ -99,42 +125,42 @@ var evaluate = function(){
 	  draw_curve();
 	}
 	  ctx.strokeStyle = '#f20915';
-	  x_n = x_0;
-	  //if no animation, graph everything without delays
-	  if (document.getElementById('animate').checked === false){
-	  	for (let i = 0; i < iterations; i++){
-	  		ctx.beginPath();
-	  		let y = (i == 0 && !continuingFromPaused) ? 0 : x_n*plot_height; //for first iteration, draw line from x-axis 
-		  	ctx.moveTo(x_n*plot_width, y);
-		  	ctx.lineTo(x_n*plot_width, fun(x_n)*plot_height);
-		  	ctx.lineTo(fun(x_n)*plot_width, fun(x_n)*plot_height);
-		  	ctx.stroke();
-		  	x_n = fun(x_n);
-		  	iteration = iterations;
-	  	}
-	  }
-	  //if animation is checked, delay between iterations based on "speed" setting
+	  x_n = x_start;
+	  //if no animation or animation is paused, graph everything without delays
+	  if (!animation_running){
+	  		draw_web(iterations);
+	  		curr_iteration = iterations;
+	  	}	  
+	  //animate: delay between iterations based on "speed" setting
 	  else{
-	  	iteration = 0;
-		animation = setInterval(function() { 
-		    ctx.beginPath();
-		    let y = (iteration == 0 && !continuingFromPaused) ? 0 : x_n*plot_height; //for first iteration, draw line from x-axis 
-		  	ctx.moveTo(x_n*plot_width, y);
-		  	ctx.lineTo(x_n*plot_width, fun(x_n)*plot_height);
-		  	ctx.lineTo(fun(x_n)*plot_width, fun(x_n)*plot_height);
-		  	ctx.stroke();
-		    if (iteration >= iterations) {
-		    	clearInterval(animation);
-		    }
-		    iteration++;
-		  	x_n = fun(x_n);
-	    }, 1000/(document.getElementById('speed').value));
+	  		iterations = document.getElementById('iterations').value*1;
+			animation = setInterval(() => { 
+			    draw_web(curr_iteration);
+			    if (curr_iteration >= iterations) {
+			    	clearInterval(animation);
+			    }
+			    x_n = x_start;
+			    curr_iteration++;
+	    }, 1000/ document.getElementById('speed').value);
 	  
 	  }
 	  
 };
 
-
+var draw_web = function(iterations){
+	for (let i = 1; i <= iterations; i++){
+		
+		if (i != 1){
+			x_n = fun(x_n);
+		}
+		ctx.beginPath();
+		let y = (i == 1 && !continuingFromPaused) ? 0 : x_n*plot_height; //for first iteration, draw line from x-axis 
+	  	ctx.moveTo(x_n*plot_width, y);
+	  	ctx.lineTo(x_n*plot_width, fun(x_n)*plot_height);
+	  	ctx.lineTo(fun(x_n)*plot_width, fun(x_n)*plot_height);
+	  	ctx.stroke();
+  	}	
+};
 
 var validateInputs = function(){
 	//debugger;
@@ -142,6 +168,7 @@ var validateInputs = function(){
 	let error_count = 0;
 	iterations = document.getElementById('iterations').value*1;
 	x_0 = document.getElementById('x_0').value;
+	x_start = x_0;
 	r = document.getElementById('r').value;
 	if (iterations === '' || !(Number.isInteger(iterations) && iterations > 0)){
 		error += 'Iterations must be a positive integer. ';
@@ -159,6 +186,7 @@ var validateInputs = function(){
 		return 1;
 	}
 	else{
+		document.getElementById('errors').style.display = 'block';
 		document.getElementById('errors').innerHTML = error_count == 1 ? 'Error: ' + error : 'Errors: ' + error;
 		return 0;
 	}

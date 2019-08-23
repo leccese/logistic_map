@@ -1,9 +1,9 @@
 html, body {
 	font-family: Trebuchet MS;
 	background-color: #eff2f7;
+	text-align:center;
 }
 #header {
-	text-align: center;
 	text-transform: uppercase;
 	color: #2d2e30;
 	font-size: 46px;
@@ -19,26 +19,47 @@ html, body {
 }
 #eq{
 	text-align: center;
-	margin-bottom: 10px;
 	font-size: 18px;
 }
 #form{
 	color: #2d2e30;
 	text-align: center;
+	margin-top: 10px;
 }
-#animate_options{
-	display: none;
+.material-icons{
+	color: #848484;
+}
+.material-icons:hover{
+	color: black;
+}
+#animation_options{
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	background-color: white;
+	width: 550px;
+	margin: auto;
+	margin-top: 8px;
+	border-radius: 10px;
+	border-style: solid;
+	border-color: #848484;
+	border-width: 1px;
+}
+#animation_label{
+	display: inline-block;
+	font-weight: bold;
 }
 #errors{
+	display: none;
 	height: 25px;
 	color: red;
-	text-align: center;
 	margin-top: -8px;
 }
 #logmap_container{
 	height: 470px;
 	width: 500px;
 	padding-top: 10px;
+	text-align: left;
 	margin: auto;
 	display: grid;
 	grid-template-columns: 30px 40px 370px;

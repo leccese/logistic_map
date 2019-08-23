@@ -4,23 +4,32 @@
 		<meta charset="utf-8"/>
 		<script type="text/javascript" src="scripts.js"></script>
 		<link rel="stylesheet" type="text/css" href="styles.css">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	</head>
 	<body>
 		<div id='header'>Logistic Map</div>
 		<div id='container'>
+			The Logistic Map is a model for population growth which is the canonical example simple yet chaotic systems. Learn more <a href="http://www.kierandkelly.com/what-is-chaos/logistic-map/" target='_blank'>here</a> 
 		<div id='eq'>x<sub>n+1</sub> = rx<sub>n</sub>(1-x<sub>n</sub>)</div> 
+		<div>Where:</div>
+		<div>x<sub>n</sub> and x<sub>n+1</sub> are the percentages of the max population in the current and next iterations, respectively</div>
+		<div>r is the growth rate (birth rate - death rate)</div>
 		<div id='form'>
 		<form>
 			Iterations: <input id='iterations' type='text'>
-			Initial value (x<sub>0</sub>): <input id='x_0' type='text'>
-			Parameter (r): <input id='r' type='text'>
-			Animate<input id='animate' type='checkbox'>
+			Initial value (x<sub>0</sub>): <input id='x_0' type='text' placeholder='any value 0-1'>
+			Parameter (r): <input id='r' type='text' placeholder='any value 1-4'>
+			Animate<input id='animate' type='checkbox' checked>
 			<input id='submit' type='button' value='Submit'>
 			<div id='animation_options'>
-				Speed: <input type="range" min="1" max="50" value="5" id="speed">
-				<input id='back' type='button' value='back'>
-				<input id='pause' type='button' value='pause'>
-				<input id='forward' type='button' value='foward'>
+				<div id='animation_label'>Animation Controls:</div> 
+				Speed: <input type="range" min="1" max="30" value="5" id="speed">
+				<i id='back' class="material-icons">fast_rewind</i>
+				<!-- <div id='back_tool_tip' class='tool_tip'>go back one iteration</div> -->
+				<i id='pause'  class="material-icons" >pause</i>
+				<!-- <div id='pause_tool_tip' class='tool_tip'>pause/play animation</div> -->
+				<i id='forward' class="material-icons">fast_forward</i>
+				<!-- <div id='forward_tool_tip' class='tool_tip'>go foward one iteration</div> -->
 			</div>
 		</form>
 		</div>
